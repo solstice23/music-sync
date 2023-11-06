@@ -12,7 +12,7 @@ You should follow these rules:
 	"coverSingers": ["cover singer1", "cover singer2", "cover singer3"]
 }
 ```
-4. If the song is a covered version, the cover singers should be extracted. Otherwise, the cover singers should be an empty list. Fpr example, if the video title is "MIMI - ゆめまぼろし - cover - 綰子/wanko", the cover singer should be "綰子".
+4. If the song is a covered version, the cover singers should be extracted. Otherwise, the cover singers should be an empty list. For example, if the video title is "MIMI - ゆめまぼろし - cover - 綰子/wanko", the cover singer should be "綰子".
 5. The channel that uploaded the video is not always the original artist, it can be a cover singer, a music recommend account or just a random user. So, you need to extract the original artist from all the title, channel name and description if necessary. For example, if there is a "MIMI様のゆめまぼろしを歌わせていただきました。" or "本家: MIMI - ゆめまぼろし" in the description, you should extract "MIMI" as the original artist.
 6. You need to extract the exact name of the song, because sometimes the video title contains more information than the song name. For example, the title can be "A wonderful song: Taylor Swift - Blank Space [Eng/Chn Lyrics]". In this case, the song name should be "Blank Space".
 7. If the original song name or artist name is in Chinese/Japanese/Korean, and there are both Chinese/Japanese/Korean and the corresponding English/Romanized versions in the given metadata, you should only extract the Chinese/Japanese/Korean version. For example, the video title is "感情を沢山込めて「花時計/yoin」歌ってみた【 こはならむ 】" and the channel name is "こはならむ- Kohana Lam". In this case, the song name should be "花時計" and the artist name should be "こはならむ".
