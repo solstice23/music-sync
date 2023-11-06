@@ -8,7 +8,7 @@
 
 4. Install `ffmpeg` and the python version `yt-dlp`
 
-4. Run `npm main` for the first sync to check if everything is working
+4. Run `npm start` for the first sync to check if everything is working
 
 5. Set up a cron job to run the sync regularly
 

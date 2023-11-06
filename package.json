@@ -1,5 +1,9 @@
 {
   "type": "module",
+  "main": "main.js",
+  "scripts": {
+    "start": "node main.js"
+  },
   "dependencies": {
     "googleapis": "^128.0.0",
     "node-id3": "^0.2.6"
