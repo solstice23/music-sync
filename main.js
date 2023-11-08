@@ -1,4 +1,5 @@
 import config from './config.js';
+import { writeLog } from './log.js';
 import { getMultiplePlaylistsItems } from './youtube-api.js';
 import { getDB, saveDB, getTmpPath, clearTmp, getPath, formatFileName } from './fileio.js';
 import { checkPrerequisites, downloadMp3, downloadThumbnail } from './download.js';
@@ -115,6 +116,11 @@ const sync = async () => {
 }
 
 const main = async () => {
+	writeLog('');
+	writeLog('#########################');
+	writeLog('###  Session started  ###');
+	writeLog('#########################');
+	writeLog('');
 	await checkPrerequisites();
 	await sync();
 	console.log('Done');

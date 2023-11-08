@@ -1,5 +1,4 @@
 import fs from 'fs';
-import config from './config.js';
 
 export const getPath = (libraryPath, path = '') => {
 	const basePath = libraryPath.replace(/\\/g, '/').replace(/\/$/, '');
