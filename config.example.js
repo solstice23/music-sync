@@ -9,6 +9,7 @@ const config = {
 			],
 		}
 	],
+	logPath: "D:\\dev\\youtube-playlist-song-sync",
 
 	//chatGPTModel: "gpt-3.5-turbo",
 	chatGPTModel: "gpt-4",
