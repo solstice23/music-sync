@@ -9,9 +9,24 @@ import fs from 'fs';
 
 
 const syncLibrary = async (library) => {
-	const { path, playlistIDs } = library;
+	const { path } = library;
 
 	console.log('🔄 Starting sync library', path);
+	
+	if (library.youtubePlaylists) {
+		await syncLibraryYoutubePlaylists(path, library.youtubePlaylists);
+	}
+
+	if (library.soundCloudLists) {
+		// await syncLibrarySoundCloudLists(path, library.soundCloudLists);
+	}
+	
+
+	console.log('Done sync library', path, '\n');
+}
+
+const syncLibraryYoutubePlaylists = async (path, playlistIDs) => {
+	console.log('Starting youtube playlists in library', path);
 	console.log('Getting local DB...');
 	const db = getDB(path);
 	console.log(`${Object.keys(db).length} songs in DB`);
@@ -25,16 +40,18 @@ const syncLibrary = async (library) => {
 
 	for (let i = 0; i < items.length; i++) {
 		console.log(`Downloading ${i + 1}/${items.length}...`);
-		await downloadSong(path, items[i]);
+		await downloadYoutubeSong(path, items[i]);
 	};
-	//await downloadSong(path, items[0]);
-
-	console.log('Done sync library', path, '\n');
+	//await downloadYoutubeSong(path, items[0]);
+	
+	console.log('Done sync youtube playlists in library', path, '\n');
 	console.log('Cleaning up...');
 	clearTmp(path);
 }
 
-const downloadSong = async (libraryPath, item) => {
+
+
+const downloadYoutubeSong = async (libraryPath, item) => {
 	const videoId = item.contentDetails.videoId;
 	const { title, description, videoOwnerChannelTitle } = item.snippet;
 	const thumbnail = Object.keys(item.snippet.thumbnails).reduce((acc, key) => {
