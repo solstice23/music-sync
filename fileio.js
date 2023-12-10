@@ -1,5 +1,6 @@
-import fs from 'fs';
+import fs from 'fs-extra';
 import { exit } from 'process';
+import { execSync } from 'child_process';
 
 export const getPath = (libraryPath, path = '') => {
 	const basePath = libraryPath.replace(/\\/g, '/').replace(/\/$/, '');
@@ -58,23 +59,32 @@ export const getTmpPath = (libraryPath) => {
 	return getPath(libraryPath, 'tmp');
 }
 
-export const clearTmp = (libraryPath, times = 50) => {
+export const clearTmp = async (libraryPath, times = 50) => {
 	if (times === 0) {
 		console.log('Failed to clear tmp folder');
 		return;
 	}
 	const tmpPath = getTmpPath(libraryPath);
-	try {
-		fs.rmSync(tmpPath, { recursive: true });
+	/*try {
+		//fs.rmSync(tmpPath, { recursive: true });
+		fs.removeSync(tmpPath);
 	} catch (e) {
-		if (e.code !== 'ENOTEMPTY') {
-			setTimeout(() => {
-				clearTmp(libraryPath, times - 1);
-			}, 100);
-		}
-		throw e;
+		//if (e.code !== 'ENOTEMPTY') {
+			console.log('Error clearing tmp folder, retrying...', e);
+			await new Promise((resolve) => {
+				setTimeout(() => {
+					resolve();
+				}, 100);
+			});
+			await clearTmp(libraryPath, times - 1);
+		//}
+		//throw e;
+	}*/
+	if (process.platform === 'win32') {
+		execSync(`rmdir /s /q "${tmpPath}"`);
+	} else {
+		execSync(`rm -rf "${tmpPath}"`);
 	}
-	
 }
 
 export const formatFileName = (fileName) => {

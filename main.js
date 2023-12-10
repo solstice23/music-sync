@@ -47,7 +47,7 @@ const syncLibraryYoutubePlaylists = async (path, playlistIDs) => {
 	
 	console.log('Done sync youtube playlists in library', path, '\n');
 	console.log('Cleaning up...');
-	clearTmp(path);
+	await clearTmp(path);
 }
 
 
@@ -177,7 +177,7 @@ const syncLibrarySoundcloud = async (path, playlists, likes) => {
 
 	console.log('Done sync soundcloud playlists & likes in library', path, '\n');
 	console.log('Cleaning up...');
-	clearTmp(path);
+	await clearTmp(path);
 }
 
 const downloadSoundcloudSong = async (libraryPath, song) => {

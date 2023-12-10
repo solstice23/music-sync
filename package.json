@@ -5,6 +5,7 @@
     "start": "node main.js"
   },
   "dependencies": {
+    "fs-extra": "^11.2.0",
     "googleapis": "^128.0.0",
     "node-id3": "^0.2.6"
   }
