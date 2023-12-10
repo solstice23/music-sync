@@ -198,7 +198,9 @@ const downloadSoundcloudSong = async (libraryPath, song) => {
 	const meta = {};
 	meta.name = title;
 	meta.artists = [username];
-	meta.genre = genre.toLowerCase().split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+	meta.genres = genre.split(',').map(item => item.trim()).filter(item => item !== '').map(item => 
+		toLowerCase().split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')
+	);
 
 	console.log(`Downloading ${id}: ${meta.name}...`);
 	try {
@@ -222,7 +224,7 @@ const downloadSoundcloudSong = async (libraryPath, song) => {
 		title: meta.name,
 		artist: artistStr,
 		image: coverPath,
-		genre: meta.genre,
+		genre: meta.genres.join(', '),
 		comment: {
 			language: 'eng',
 			text: url
