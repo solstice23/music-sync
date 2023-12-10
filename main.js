@@ -193,10 +193,12 @@ const downloadSoundcloudSong = async (libraryPath, song) => {
 	const userId = song.user.id;
 	const thumbnail = song.artwork_url.replace('large.jpg', 'original.jpg');
 	const url = song.permalink_url;
+	const genre = song.genre;
 
 	const meta = {};
 	meta.name = title;
 	meta.artists = [username];
+	meta.genre = genre.toLowerCase().split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
 
 	console.log(`Downloading ${id}: ${meta.name}...`);
 	try {
@@ -220,6 +222,7 @@ const downloadSoundcloudSong = async (libraryPath, song) => {
 		title: meta.name,
 		artist: artistStr,
 		image: coverPath,
+		genre: meta.genre,
 		comment: {
 			language: 'eng',
 			text: url
@@ -249,7 +252,8 @@ const downloadSoundcloudSong = async (libraryPath, song) => {
 			"username": username,
 			"userId": userId,
 			"thumbnail": thumbnail,
-			"url": url
+			"url": url,
+			"genre": genre
 		},
 		"extractedMeta": meta
 	});
@@ -285,7 +289,7 @@ const main = async () => {
 	writeLog('###  Session started  ###');
 	writeLog('#########################');
 	writeLog('');
-	//await checkPrerequisites();
+	await checkPrerequisites();
 	await sync();
 	console.log('Done');
 }
