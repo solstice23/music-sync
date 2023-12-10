@@ -15,7 +15,7 @@ const syncLibrary = async (library) => {
 	console.log('🔄 Starting sync library', path);
 	
 	if (library.youtubePlaylists) {
-		//await syncLibraryYoutubePlaylists(path, library.youtubePlaylists);
+		await syncLibraryYoutubePlaylists(path, library.youtubePlaylists);
 	}
 
 	if (library.soundCloudPlaylists || library.soundCloudLikes) {
