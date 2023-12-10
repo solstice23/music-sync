@@ -3,7 +3,9 @@ import config from './config.js';
 import { spawn } from 'child_process';
 import { getPath, getTmpPath } from './fileio.js';
 import { createWriteStream, existsSync } from 'fs';
+import { getSCM3U8StreamUrls } from './soundcloud-api.js';
 import https from 'https';
+import fs from 'fs';
 
 const executeCommand = (command, args, onStdout = null, onStderr = null, onErr = () => {}) => {
 	if (!onStdout) {
@@ -94,7 +96,7 @@ export const checkPrerequisites = async () => {
 
 
 
-export const downloadMp3 = async (videoId, libraryPath) => {
+export const downloadYoutubeMp3 = async (videoId, libraryPath) => {
 	const tmpPath = getTmpPath(libraryPath);
 	const filePath = getPath(tmpPath, `${videoId}.mp3`);
 	console.log(`Downloading mp3 of ${videoId}...`);
@@ -124,7 +126,7 @@ export const downloadMp3 = async (videoId, libraryPath) => {
 
 // downloadMp3('zqjOKjBRq-g', config.libraries[0].path);
 
-export const downloadThumbnail = async (videoId, thumbnailUrl, libraryPath) => {
+export const downloadYoutubeThumbnail = async (videoId, thumbnailUrl, libraryPath) => {
 	const tmpPath = getTmpPath(libraryPath);
 	console.log(`Downloading thumbnail ${videoId}...`);
 	const url = thumbnailUrl || `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
@@ -136,3 +138,78 @@ export const downloadThumbnail = async (videoId, thumbnailUrl, libraryPath) => {
 	console.log(`Downloaded thumbnail ${videoId}.jpg`);
 }
 
+
+export const downloadSoundCloudMp3 = async (id, transcodingLink, key, libraryPath) => {
+	id = id.toString();
+	const tmpPath = getTmpPath(libraryPath);
+	const subTmpPath = getPath(getTmpPath(libraryPath), id);
+	if (!existsSync(subTmpPath)) {
+		fs.mkdirSync(subTmpPath);
+	}
+	const filePath = getPath(subTmpPath, 'tmp.mp3');
+	console.log(`Downloading mp3 of ${id}...`);
+	if (existsSync(filePath)) {
+		console.log(`File ${id}.mp3 already exists, skipping...`);
+		return;
+	}
+	let m3u8 = await getSCM3U8StreamUrls(transcodingLink, key);
+	m3u8 = m3u8.map((url, index) => {
+		return new Promise(async (resolve) => {
+			//console.log(`Downloading ${index + 1}/${m3u8.length}...`);
+			const file = getPath(subTmpPath, `${index}.mp3`);
+			const res = await fetch(url);
+			const buffer = await res.arrayBuffer();
+			fs.createWriteStream(file).write(Buffer.from(buffer));
+			console.log(`Downloaded ${index + 1}/${m3u8.length}`);
+			resolve();
+		});
+	});
+	await Promise.all(m3u8);
+	console.log(`Downloaded ${m3u8.length} fragments, merging...`);
+
+	const fileListContent = m3u8.map((_, i) => `file '${i}.mp3'`).join("\n");
+	const filelist = getPath(subTmpPath, 'filelist.txt');
+	fs.writeFileSync(filelist, fileListContent);
+
+	try {
+		// ffmpeg -f concat -safe 0 -i filelist.txt -c copy output.mp3
+		await executeCommand('ffmpeg', [
+			'-f',
+			'concat',
+			'-safe',
+			'0',
+			'-i',
+			filelist,
+			'-c',
+			'copy',
+			filePath
+		], () => {}, () => {});
+	} catch (e) {
+		console.log(`Error merging ${id}`, e);
+		throw e;
+	}
+	console.log(`Merged ${id}.mp3`);
+
+	console.log(`Cleaning up tmp files...`);
+	//fs.renameSync(filePath, getPath(tmpPath, `${id}.mp3`));
+	fs.copyFileSync(filePath, getPath(tmpPath, `${id}.mp3`));
+	fs.rmSync(filelist);
+	/*m3u8.forEach((_, i) => {
+		fs.rmSync(getPath(subTmpPath, `${i}.mp3`));
+	});
+	fs.rmSync(subTmpPath, { recursive: true, force: true });*/
+	console.log(`Cleaned up tmp files`);
+	console.log(`Downloaded ${id}.mp3`);
+}
+
+export const downloadSoundCloudThumbnail = async (id, thumbnailUrl, libraryPath) => {
+	id = id.toString();
+	const tmpPath = getTmpPath(libraryPath);
+	console.log(`Downloading thumbnail ${id}...`);
+	const url = thumbnailUrl.replace('large.jpg', 'original.jpg');
+	const file = createWriteStream(getPath(tmpPath, `${id}.jpg`));
+	const request = https.get(url, function(response) {
+		response.pipe(file);
+	});
+	console.log(`Downloaded thumbnail ${id}.jpg`);
+}

@@ -1,18 +1,42 @@
-[
-	{
-		"videoId": "EYGGd2NKwtI",
-		"fileName": "手嶌葵 - 森の小さなレストラン.mp3",
-		"downloadTime": "2023-11-05T03:16:23Z",
-		"youtube": {
-			"title": "手嶌葵「 森の小さなレストラン」（Official Audio）",
-			"desc": "手嶌葵「森の小さなレストラン」[NHKみんなのうた（2023年4～5月放送）]、Official Audio公開。\n\n作詞：御徒町凧 ／ 作曲：森山直太朗 ／ 編曲：兼松衆\n\n配信はこちら　⇒　https://jvcmusic.lnk.to/mncr\n\n＝＝＝＝＝＝＝＝＝＝＝\n\n■手嶌葵オフィシャルＨＰ　http://www.aoiteshima.com\n■手嶌葵YouTube公式チャンネル　https://www.youtube.com/c/TeshimaAoi0621\n■手嶌葵オフィシャルフェイスブック　https://www.facebook.com/aoiteshimaofficial/\n■手嶌葵オフィシャルインスタグラム　https://www.instagram.com/aoiteshimaofficial/\n■手嶌葵レーベルサイト　http://jvcmusic.co.jp/aoiteshima",
-			"channelName": "手嶌葵",
-			"thumbnail": "https://i.ytimg.com/vi/EYGGd2NKwtI/maxresdefault.jpg"
+{
+	"version": 1,
+	"entries": [
+		{
+			"source": "youtube",
+			"videoId": "EYGGd2NKwtI",
+			"fileName": "手嶌葵 - 森の小さなレストラン.mp3",
+			"downloadTime": "2023-11-05T03:16:23Z",
+			"youtube": {
+				"title": "手嶌葵「 森の小さなレストラン」（Official Audio）",
+				"desc": "手嶌葵「森の小さなレストラン」[NHKみんなのうた（2023年4～5月放送）]、Official Audio公開。\n\n作詞：御徒町凧 ／ 作曲：森山直太朗 ／ 編曲：兼松衆\n\n配信はこちら　⇒　https://jvcmusic.lnk.to/mncr\n\n＝＝＝＝＝＝＝＝＝＝＝\n\n■手嶌葵オフィシャルＨＰ　http://www.aoiteshima.com\n■手嶌葵YouTube公式チャンネル　https://www.youtube.com/c/TeshimaAoi0621\n■手嶌葵オフィシャルフェイスブック　https://www.facebook.com/aoiteshimaofficial/\n■手嶌葵オフィシャルインスタグラム　https://www.instagram.com/aoiteshimaofficial/\n■手嶌葵レーベルサイト　http://jvcmusic.co.jp/aoiteshima",
+				"channelName": "手嶌葵",
+				"thumbnail": "https://i.ytimg.com/vi/EYGGd2NKwtI/maxresdefault.jpg"
+			},
+			"extractedMeta": {
+				"name": "森の小さなレストラン",
+				"artists": ["手嶌葵"],
+				"coverSingers": []
+			}
 		},
-		"extractedMeta": {
-			"name": "森の小さなレストラン",
-			"artists": ["手嶌葵"],
-			"coverSingers": []
+		{
+			"source": "soundcloud",
+			"musicId": 1678374306,
+			"fileName": "Assertive - Lyrical Lily - Maihime (Assertive Hardcore Bootleg).mp3",
+			"downloadTime": "2023-11-05T03:16:23Z",
+			"soundcloud": {
+				"title": "Lyrical Lily - Maihime (Assertive Hardcore Bootleg)",
+				"caption": "First bootleg of 2023! Let's go!!!!!!!!!",
+				"description": "First bootleg of 2023! Hope you all enjoy!\n\nThank you Taku Inoue for making another banger!",
+				"username": "Assertive", // user.username
+				"usedid": 8500439, // user.id
+				"thumbnail": "https://i1.sndcdn.com/artworks-OarNbFoygLcEQzW7-qU781A-t500x500.jpg", // artwork_url
+				"url": "https://soundcloud.com/assertivef/lyrical-lily-maihime-assertive-hardcore-bootleg" // permalink_url
+			},
+			"extractedMeta": {
+				"name": "Lyrical Lily - Maihime (Assertive Hardcore Bootleg)",
+				"artists": ["Assertive"]
+			}
 		}
-	}
-]
+	]
+}
+

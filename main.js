@@ -1,8 +1,9 @@
 import config from './config.js';
 import { writeLog } from './log.js';
 import { getMultiplePlaylistsItems } from './youtube-api.js';
+import { getSCPlaylist, getSCUserLikes, getSCSongsMetadata } from './soundcloud-api.js';
 import { getDB, saveDB, getTmpPath, clearTmp, getPath, formatFileName } from './fileio.js';
-import { checkPrerequisites, downloadMp3, downloadThumbnail } from './download.js';
+import { checkPrerequisites, downloadYoutubeMp3, downloadYoutubeThumbnail, downloadSoundCloudMp3, downloadSoundCloudThumbnail } from './download.js';
 import { extractSongMetaGPT } from './gpt.js';
 import NodeID3 from 'node-id3';
 import fs from 'fs';
@@ -14,11 +15,11 @@ const syncLibrary = async (library) => {
 	console.log('🔄 Starting sync library', path);
 	
 	if (library.youtubePlaylists) {
-		await syncLibraryYoutubePlaylists(path, library.youtubePlaylists);
+		//await syncLibraryYoutubePlaylists(path, library.youtubePlaylists);
 	}
 
-	if (library.soundCloudLists) {
-		// await syncLibrarySoundCloudLists(path, library.soundCloudLists);
+	if (library.soundCloudPlaylists || library.soundCloudLikes) {
+		await syncLibrarySoundcloud(path, library.soundCloudPlaylists, library.soundCloudLikes);
 	}
 	
 
@@ -26,7 +27,7 @@ const syncLibrary = async (library) => {
 }
 
 const syncLibraryYoutubePlaylists = async (path, playlistIDs) => {
-	console.log('Starting youtube playlists in library', path);
+	console.log('Start syncing youtube playlists in library', path);
 	console.log('Getting local DB...');
 	const db = getDB(path);
 	console.log(`${Object.keys(db).length} songs in DB`);
@@ -65,8 +66,8 @@ const downloadYoutubeSong = async (libraryPath, item) => {
 
 	try {
 		await Promise.all([
-			downloadMp3(videoId, libraryPath),
-			downloadThumbnail(videoId, thumbnail, libraryPath),
+			downloadYoutubeMp3(videoId, libraryPath),
+			downloadYoutubeThumbnail(videoId, thumbnail, libraryPath),
 			new Promise(async (resolve) => {
 				console.log(`Extracting metadata using GPT: ${videoId}: ${title}...`);
 				meta = await extractSongMetaGPT(title, description, videoOwnerChannelTitle);
@@ -98,7 +99,7 @@ const downloadYoutubeSong = async (libraryPath, item) => {
 	NodeID3.write(tags, musicPath);
 	console.log("Metadata has been written");
 	
-	const newMusicName = formatFileName(`${artistStr} - ${meta.name}.mp3`);
+	const newMusicName = formatFileName(musicName(artistStr, meta.name)) + '.mp3';
 	console.log(`Renaming mp3 to ${newMusicName} ...`);
 	console.log(`Moving mp3 to library...`);
 	fs.renameSync(musicPath, getPath(libraryPath, newMusicName));
@@ -108,6 +109,7 @@ const downloadYoutubeSong = async (libraryPath, item) => {
 	console.log(`Updating DB...`);
 	const db = getDB(libraryPath);
 	db.push({
+		"source": "youtube",
 		"videoId": videoId,
 		"fileName": newMusicName,
 		"downloadTime": new Date().toISOString(),
@@ -125,6 +127,151 @@ const downloadYoutubeSong = async (libraryPath, item) => {
 	console.log(`Done ${videoId}: ${title}\n`);
 }
 
+const syncLibrarySoundcloud = async (path, playlists, likes) => {
+	playlists = playlists || [];
+	likes = likes || [];
+	console.log('Start syncing soundcloud playlists & likes in library', path);
+	console.log('Getting local DB...');
+	const db = getDB(path);
+	console.log(`${Object.keys(db).length} songs in DB`);
+
+	let songs = [];
+	const addSong = (song) => {
+		const existing = songs.find(item => item.id === song.id);
+		if (!existing) {
+			songs.push(song);
+		} else if (!existing.media) {
+			songs[songs.indexOf(existing)] = song;
+		}
+	}
+	for (let playlist of playlists) {
+		console.log(`Getting playlist ${playlist}...`);
+		const playlistSongs = (await getSCPlaylist(playlist)).tracks;
+		playlistSongs.forEach(song => addSong(song));
+		console.log(`Got ${playlistSongs.length} songs from playlist ${playlist}`);
+	}
+	for (let user of likes) {
+		console.log(`Getting likes of user ${user}...`);
+		const userLikes = await getSCUserLikes(user);
+		userLikes.forEach(song => addSong(song));
+		console.log(`Got ${userLikes.length} songs from likes of user ${user}`);
+	}
+	console.log(`Got ${songs.length} songs in total`);
+	
+	const existingIds = db.filter(item => item.source === 'soundcloud').map(item => item.musicId);
+	songs = songs.filter(song => !existingIds.includes(song.id));
+	console.log(`${songs.length} of them are new songs`);
+	
+	const missingMetaSongs = songs.filter(song => !song.media);
+	if (missingMetaSongs.length > 0) {
+		console.log('Getting missing metadata of songs...');
+		const missingMetadata = await getSCSongsMetadata(missingMetaSongs);
+		missingMetadata.forEach(song => addSong(song));
+		console.log(`Got ${missingMetadata.length} missing metadata`);
+	}
+
+	for (let i = 0; i < songs.length; i++) {
+		console.log(`Downloading ${i + 1}/${songs.length}...`);
+		await downloadSoundcloudSong(path, songs[i]);
+	};
+
+	console.log('Done sync soundcloud playlists & likes in library', path, '\n');
+	console.log('Cleaning up...');
+	clearTmp(path);
+}
+
+const downloadSoundcloudSong = async (libraryPath, song) => {
+	const id = song.id;
+	const transcodingLink = song.media.transcodings[0].url;
+	const key = song.track_authorization;
+	
+	
+	const title = song.title;
+	const caption = song.caption;
+	const description = song.description;
+	const username = song.user.username;
+	const userId = song.user.id;
+	const thumbnail = song.artwork_url.replace('large.jpg', 'original.jpg');
+	const url = song.permalink_url;
+
+	const meta = {};
+	meta.name = title;
+	meta.artists = [username];
+
+	console.log(`Downloading ${id}: ${meta.name}...`);
+	try {
+		await Promise.all([
+			downloadSoundCloudMp3(id, transcodingLink, key, libraryPath),
+			downloadSoundCloudThumbnail(id, thumbnail, libraryPath),
+		]);
+	} catch (e) {
+		console.log(`Error downloading ${id}: ${title}`, e);
+		console.log(`Skipped.\n`);
+		return;
+	}
+	console.log(`Downloaded ${id}: ${meta.name}`);
+
+	console.log(`Writing metadata into mp3...`);
+	const tmpPath = getTmpPath(libraryPath);
+	const musicPath = getPath(tmpPath, `${id}.mp3`);
+	const coverPath = getPath(tmpPath, `${id}.jpg`);
+	const artistStr = [...new Set(meta.artists)].join(', ');
+	const tags = {
+		title: meta.name,
+		artist: artistStr,
+		image: coverPath,
+		comment: {
+			language: 'eng',
+			text: url
+		}
+	};
+	NodeID3.write(tags, musicPath);
+	console.log("Metadata has been written");
+
+	const newMusicName = formatFileName(musicName(artistStr, meta.name)) + '.mp3';
+	console.log(`Renaming mp3 to ${newMusicName} ...`);
+	console.log(`Moving mp3 to library...`);
+	fs.renameSync(musicPath, getPath(libraryPath, newMusicName));
+	console.log(`Moved mp3 to library`);
+	fs.unlinkSync(coverPath);
+
+	console.log(`Updating DB...`);
+	const db = getDB(libraryPath);
+	db.push({
+		"source": "soundcloud",
+		"musicId": id,
+		"fileName": newMusicName,
+		"downloadTime": new Date().toISOString(),
+		"soundcloud": {
+			"title": title,
+			"caption": caption,
+			"desc": description,
+			"username": username,
+			"userId": userId,
+			"thumbnail": thumbnail,
+			"url": url
+		},
+		"extractedMeta": meta
+	});
+	saveDB(libraryPath, db);
+	console.log(`DB updated`);
+
+	console.log(`Done ${id}: ${meta.name}\n`);
+}
+	
+
+
+
+
+const musicName = (artist, name) => {
+	artist = artist.trim();
+	name = name.trim();
+	if (artist === '') {
+		return name;
+	}
+	return `${artist} - ${name}`;
+}
+
 
 const sync = async () => {
 	for (const library of config.libraries) {
@@ -138,7 +285,7 @@ const main = async () => {
 	writeLog('###  Session started  ###');
 	writeLog('#########################');
 	writeLog('');
-	await checkPrerequisites();
+	//await checkPrerequisites();
 	await sync();
 	console.log('Done');
 }

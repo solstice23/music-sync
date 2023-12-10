@@ -7,6 +7,12 @@ const config = {
 			playlistIDs: [
 				"YOUR PLAYLIST ID",
 			],
+			soundCloudPlaylists: [
+				"PLAYLIST URL",
+			],
+			soundCloudLikes: [
+				"USER NAME OR ID",
+			],
 		}
 	],
 	logPath: "D:\\dev\\youtube-playlist-song-sync",
