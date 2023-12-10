@@ -199,7 +199,7 @@ const downloadSoundcloudSong = async (libraryPath, song) => {
 	meta.name = title;
 	meta.artists = [username];
 	meta.genres = genre.split(',').map(item => item.trim()).filter(item => item !== '').map(item => 
-		toLowerCase().split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')
+		item.toLowerCase().split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')
 	);
 
 	console.log(`Downloading ${id}: ${meta.name}...`);

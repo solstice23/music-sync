@@ -29,12 +29,14 @@
 				"description": "First bootleg of 2023! Hope you all enjoy!\n\nThank you Taku Inoue for making another banger!",
 				"username": "Assertive", // user.username
 				"usedid": 8500439, // user.id
-				"thumbnail": "https://i1.sndcdn.com/artworks-OarNbFoygLcEQzW7-qU781A-t500x500.jpg", // artwork_url
-				"url": "https://soundcloud.com/assertivef/lyrical-lily-maihime-assertive-hardcore-bootleg" // permalink_url
+				"thumbnail": "https://i1.sndcdn.com/artworks-OarNbFoygLcEQzW7-qU781A-original.jpg", // artwork_url
+				"url": "https://soundcloud.com/assertivef/lyrical-lily-maihime-assertive-hardcore-bootleg", // permalink_url
+				"genre": "Hardcore",
 			},
 			"extractedMeta": {
 				"name": "Lyrical Lily - Maihime (Assertive Hardcore Bootleg)",
-				"artists": ["Assertive"]
+				"artists": ["Assertive"],
+				"genres": ["Hardcore"],
 			}
 		}
 	]
