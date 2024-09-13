@@ -181,6 +181,9 @@ const syncLibrarySoundcloud = async (path, playlists, likes) => {
 }
 
 const downloadSoundcloudSong = async (libraryPath, song) => {
+
+	console.log(song);
+
 	const id = song.id;
 	const transcodingLink = song.media.transcodings[0].url;
 	const key = song.track_authorization;
@@ -191,6 +194,9 @@ const downloadSoundcloudSong = async (libraryPath, song) => {
 	const description = song.description;
 	const username = song.user.username;
 	const userId = song.user.id;
+	if (!song.artwork_url) {
+		song.artwork_url = song.user.avatar_url;
+	}
 	const thumbnail = song.artwork_url.replace('large.jpg', 'original.jpg');
 	const url = song.permalink_url;
 	const genre = song.genre;

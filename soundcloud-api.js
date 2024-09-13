@@ -11,12 +11,19 @@ export const getSCCredentials = async () => {
 		return credentials;
 	}
 	const html = await fetch('https://soundcloud.com/').then(res => res.text());
-	const js = html.match(/\<script crossorigin src="(https:\/\/a-v2\.sndcdn\.com\/assets\/0-(.+?))">\<\/script\>/)[1];
+	const jss = [...html.matchAll(/\<script crossorigin src="(https:\/\/a-v2\.sndcdn\.com\/assets\/\d+-(.+?))">\<\/script\>/g)].map(match => match[1]).sort((a, b) => a < b ? 1 : -1);
 	const appVersion = html.match(/window\.__sc_version="(.+?)"/)[1];
 	console.log("Soundcloud app version: " + appVersion);
-	console.log("Soundcloud js url: " + js);
-	const jsContent = await fetch(js).then(res => res.text());
-	const clientId = jsContent.match(/client_id:"(.+?)"/)[1];
+	let clientId = null;
+	for (let js of jss) {
+		console.log("Try Soundcloud js url: " + js);
+		const jsContent = await fetch(js).then(res => res.text());
+		const clientIdMatch = jsContent.match(/client_id:"(.+?)"/);
+		if (clientIdMatch) {
+			clientId = clientIdMatch[1];
+			break;
+		}
+	}
 	console.log("Soundcloud client id: " + clientId);
 	credentials = { clientId, appVersion };
 	return credentials;
