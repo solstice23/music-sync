@@ -181,9 +181,6 @@ const syncLibrarySoundcloud = async (path, playlists, likes) => {
 }
 
 const downloadSoundcloudSong = async (libraryPath, song) => {
-
-	console.log(song);
-
 	const id = song.id;
 	const transcodingLink = song.media.transcodings[0].url;
 	const key = song.track_authorization;
