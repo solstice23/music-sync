@@ -89,7 +89,7 @@ export const clearTmp = async (libraryPath, times = 50) => {
 
 export const formatFileName = (fileName) => {
 	fileName = fileName.replace(/[<>:"\/\\|?*]/g, '');
-	fileName = fileName.replace(/(\u00a9|\u00ae|[\u2000-\u3300]|\ud83c[\ud000-\udfff]|\ud83d[\ud000-\udfff]|\ud83e[\ud000-\udfff])/g, ''); // emojis
+	fileName = fileName.replace(/(\u00a9|\ud83c[\ud000-\udfff]|\ud83d[\ud000-\udfff]|\ud83e[\ud000-\udfff])/g, ''); // emojis
 	fileName = fileName.trim().replace(/\.+$/, '');
 	if (fileName.length === 0) {
 		return 'invalid_fileName';
