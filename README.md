@@ -17,9 +17,3 @@
 ## Requirements
 
 Youtube playlist should be a public or unlisted playlist.
-
-## Tips
-
-`GPT4` has a better accuracy than `GPT3.5` in extracting the metadata.
-
-But be aware of that if you choose to use the `GPT4` api, expect receiving expensive bills from OpenAI. (average 700-1000 tokens per song depending on the original meta of the video)

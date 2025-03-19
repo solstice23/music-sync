@@ -15,10 +15,9 @@ const config = {
 			],
 		}
 	],
-	logPath: "D:\\dev\\youtube-playlist-song-sync",
+	logPath: "D:\\dev\\music-sync",
 
-	//chatGPTModel: "gpt-3.5-turbo",
-	chatGPTModel: "gpt-4",
+	chatGPTModel: "gpt-4o",
 	chatGPTAPIKey: "YOUR OPENAI API KEY",
 }
 
